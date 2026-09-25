@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="en" class="dark">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HDD Drive Store &amp; Customizer | Ultimate Gaming Catalog</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gaming: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b',
+                            dark: '#0b0f19',
+                            card: '#131c2e',
+                            border: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-gaming { font-family: 'Orbitron', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+        .glass-panel {
+            background: rgba(19, 28, 46, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gaming-glow { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25); }
+        .gaming-glow-hover:hover { box-shadow: 0 0 35px rgba(16, 185, 129, 0.45); }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-pulse-slow { animation: pulse-slow 8s infinite ease-in-out; }
+    </style>
+ </head>
+ <body class="bg-gaming-dark text-slate-100 min-h-screen relative overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+  <canvas id="bgCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+  <div id="customBgOverlay" class="fixed inset-0 pointer-events-none z-0 transition-all duration-500" style="background: radial-gradient(circle at 50% 30%, rgba(16, 185, 129, 0.15) 0%, rgba(11, 15, 25, 0.85) 80%);"></div>
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none z-0 animate-pulse-slow"></div>
+  <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none z-0 animate-pulse-slow" style="animation-delay: 4s;"></div>
+  <!-- Main Header -->
+  <header class="relative z-20 border-b border-slate-800 glass-panel sticky top-0">
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToStep(1)">
+     <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+      <i class="fa-solid fa-hard-drive text-white text-2xl"></i>
+     </div>
+     <div>
+      <h1 id="brandTitle" class="font-gaming text-xl sm:text-2xl font-extrabold tracking-wider bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">HDD DRIVE STORE</h1>
+      <p class="text-xs text-emerald-400/80 font-medium tracking-wide">ULTIMATE GAMING &amp; MEDIA VAULT BUILDER</p>
+     </div>
+    </div>
+    <div class="flex items-center space-x-3">
+     <button onclick="openCartModal()" class="relative px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 flex items-center space-x-2 text-sm font-semibold transition-all shadow-md"><i class="fa-solid fa-cart-shopping text-emerald-400"></i> <span class="hidden sm:inline">My Vault</span> <span id="headerCartCount" class="bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded-full text-xs">0</span></button>
+     <button onclick="openAdminModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-sm flex items-center space-x-2 shadow-lg shadow-emerald-600/30 transition-all"><i class="fa-solid fa-gear"></i> <span class="hidden sm:inline">Admin Settings</span></button>
+    </div>
+   </div>
+  </header>
+  <!-- Step Progress Bar -->
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+   <div class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+     <div class="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-start">
+      <div class="flex items-center space-x-3">
+       <div id="stepIndicatorBadge" class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 font-gaming font-bold flex items-center justify-center text-lg shadow-lg shadow-emerald-500/30">1</div>
+       <div>
+        <span class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Current Step</span>
+        <h2 id="stepTitleText" class="font-gaming text-lg font-bold text-white">Select Storage (HDD, SD Card, or USB)</h2>
+       </div>
+      </div>
+     </div>
+     <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+      <button onclick="goToStep(1)" id="breadStep1" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition-all whitespace-nowrap">1. Storage</button>
+      <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+      <button onclick="goToStep(2)" id="breadStep2" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white transition-all whitespace-nowrap">2. Category</button>
+      <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+      <button onclick="goToStep(3)" id="breadStep3" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white transition-all whitespace-nowrap">3. Subcategory</button>
+      <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+      <button onclick="goToStep(4)" id="breadStep4" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white transition-all whitespace-nowrap">4. Catalog</button>
+      <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+      <button onclick="goToStep(5)" id="breadStep5" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white transition-all whitespace-nowrap">5. Delivery Method</button>
+      <i class="fa-solid fa-chevron-right text-xs text-slate-600"></i>
+      <button onclick="goToStep(6)" id="breadStep6" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-400 hover:text-white transition-all whitespace-nowrap">6. Customer Details</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <!-- Main Content Container -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+   <!-- STEP 1 -->
+   <section id="step1View" class="step-view space-y-6">
+    <div class="text-center max-w-2xl mx-auto mb-8">
+     <h3 class="font-gaming text-3xl font-extrabold text-white mb-3">Choose Your Storage Device</h3>
+     <p class="text-slate-400 text-sm">Select from HDDs, SD Cards, or USB Flash Drives. Items with 0 stock are locked[cite: 1].</p>
+    </div>
+    <div id="hddGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+   </section>
+   <!-- STEP 2 -->
+   <section id="step2View" class="step-view hidden space-y-6">
+    <div class="flex items-center justify-between mb-4">
+     <div>
+      <h3 class="font-gaming text-2xl font-extrabold text-white">Select Content Category</h3>
+      <p class="text-slate-400 text-sm">Choose whether you want gaming platforms or entertainment series &amp; movies.</p>
+     </div>
+     <button onclick="goToStep(1)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300 flex items-center space-x-2"><i class="fa-solid fa-arrow-left"></i><span>Change Storage</span></button>
+    </div>
+    <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto"></div>
+   </section>
+   <!-- STEP 3 -->
+   <section id="step3View" class="step-view hidden space-y-6">
+    <div class="flex items-center justify-between mb-4">
+     <div>
+      <h3 id="step3Heading" class="font-gaming text-2xl font-extrabold text-white">Select Subcategory</h3>
+      <p class="text-slate-400 text-sm">Pick a specific console, system, or media type to instantly open its catalog.</p>
+     </div>
+     <button onclick="goToStep(2)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300 flex items-center space-x-2"><i class="fa-solid fa-arrow-left"></i><span>Back to Categories</span></button>
+    </div>
+    <div id="subCategoryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+   </section>
+   <!-- STEP 4 -->
+   <section id="step4View" class="step-view hidden space-y-6">
+    <div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+     <div class="flex items-center space-x-3 w-full md:w-auto">
+      <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-xl">
+       <i id="currentSubIcon" class="fa-solid fa-gamepad"></i>
+      </div>
+      <div>
+       <span id="currentCategoryLabel" class="text-xs text-emerald-400 font-semibold uppercase">Platform / PSP</span>
+       <h3 id="currentSubTitle" class="font-gaming text-xl font-bold text-white">PSP Collection</h3>
+      </div>
+     </div>
+     <div class="flex items-center space-x-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0" id="quickSubSwitchBar"></div>
+     <div class="flex items-center space-x-3 w-full md:w-auto justify-end">
+      <div class="text-right hidden sm:block">
+       <span class="text-xs text-slate-400 block">Selected Storage</span> <span id="activeHddSummary" class="text-xs font-bold text-emerald-400">1TB (896GB) - ₱2,900</span>
+      </div>
+      <button onclick="goToStep(1)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-emerald-400 border border-emerald-500/30 flex items-center space-x-1.5 shadow-md"><i class="fa-solid fa-hard-drive"></i><span>Change Storage</span></button>
+     </div>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+     <div class="relative w-full sm:w-96">
+      <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i> <input type="text" id="catalogSearchInput" oninput="filterCatalogItems()" placeholder="Search title, genre, or tag..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all">
+     </div>
+     <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+      <button onclick="selectAllCurrentCatalog()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-300 flex items-center space-x-2 transition-all"><i class="fa-solid fa-check-double text-emerald-400"></i><span>Select All in View</span></button>
+      <button onclick="goToStep(5)" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/30 flex items-center space-x-2"><span>Proceed to Delivery</span><i class="fa-solid fa-arrow-right"></i></button>
+     </div>
+    </div>
+    <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+   </section>
+   <!-- STEP 5 -->
+   <section id="step5View" class="step-view hidden space-y-8 max-w-4xl mx-auto">
+    <div class="text-center">
+     <h3 class="font-gaming text-3xl font-extrabold text-white mb-2">Step 5: Delivery Method</h3>
+     <p class="text-slate-400 text-sm">Choose your preferred delivery method or carrier, then continue to enter your customer details.</p>
+    </div>
+    <div class="glass-panel rounded-3xl p-6 border border-slate-800 space-y-4">
+     <h4 class="font-gaming text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-truck-fast text-emerald-400"></i><span>Choose Delivery Method</span></h4>
+     <div id="carrierSelectionGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+    </div>
+    <div class="flex items-center justify-between">
+     <button onclick="goToStep(4)" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300"><i class="fa-solid fa-arrow-left mr-2"></i>Back to Catalog</button>
+     <button onclick="goToStep(6)" class="px-7 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-sm shadow-xl shadow-emerald-600/40 flex items-center space-x-2"><span>Continue to Customer Details</span><i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+   </section>
+   <!-- STEP 6 -->
+   <section id="step6View" class="step-view hidden space-y-8 max-w-4xl mx-auto">
+    <div class="text-center">
+     <h3 class="font-gaming text-3xl font-extrabold text-white mb-2">Step 6: Customer Details</h3>
+     <p class="text-slate-400 text-sm">Fill in your full name, contact number, and complete address before submitting the order.</p>
+    </div>
+    <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+     <h4 class="font-gaming text-lg font-bold text-white flex items-center space-x-2"><i class="fa-solid fa-address-card text-emerald-400"></i><span>Your Complete Information</span></h4>
+     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+       <label class="block text-xs text-slate-400 mb-1 font-medium">Full Name</label> <input type="text" id="checkoutFullName" placeholder="e.g. Christian Gel Bayang" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+      </div>
+      <div>
+       <label class="block text-xs text-slate-400 mb-1 font-medium">Contact Number</label> <input type="text" id="checkoutContactNumber" placeholder="e.g. 09171234567" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+      </div>
+      <div class="sm:col-span-2">
+       <label class="block text-xs text-slate-400 mb-1 font-medium">Complete Address</label> <textarea id="checkoutCompleteAddress" rows="4" placeholder="House/Street, Barangay, City, Province, Zip Code" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+      </div>
+     </div>
+     <div class="pt-4 border-t border-slate-800 flex items-center justify-between gap-3">
+      <button onclick="goToStep(5)" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300"><i class="fa-solid fa-arrow-left mr-2"></i>Back to Delivery Method</button>
+      <div class="flex flex-wrap justify-end gap-2">
+       <button onclick="copyOrderDetailsManual()" class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold rounded-xl text-sm flex items-center space-x-2 transition-all"><i class="fa-solid fa-copy"></i><span>Copy Details Manually</span></button>
+       <button onclick="submitOrderAndRedirect()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-sm shadow-xl shadow-emerald-600/40 flex items-center space-x-2 transition-all"><i class="fa-solid fa-copy"></i><span>Complete &amp; Auto Copy</span></button>
+      </div>
+     </div>
+    </div>
+   </section>
+  </main>
+  <!-- Floating Mini Icon Bar -->
+  <div id="floatingBottomBar" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 glass-panel rounded-full p-2 shadow-2xl border border-emerald-500/30 transition-all duration-300 flex items-center space-x-3">
+   <div onclick="openCartModal()" class="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-sm shadow-lg shadow-emerald-500/40 cursor-pointer relative hover:scale-105 transition-transform">
+    <i class="fa-solid fa-vault"></i> <span id="floatingItemCountBadge" class="absolute -top-1 -right-1 bg-cyan-500 text-slate-950 font-bold w-5 h-5 rounded-full text-[11px] flex items-center justify-center shadow-md">0</span>
+   </div>
+   <div class="hidden sm:flex flex-col pr-3 cursor-pointer" onclick="openCartModal()">
+    <span id="storagePercentText" class="text-[11px] font-bold text-emerald-400">0% Used</span> <span id="storageUsedText" class="text-[10px] text-slate-400">0 GB</span>
+   </div>
+   <button onclick="openCartModal()" class="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-[11px] font-semibold text-slate-200 transition-all flex items-center space-x-1"><i class="fa-solid fa-cart-shopping text-emerald-400"></i><span class="hidden sm:inline">Vault</span></button>
+   <button onclick="goToStep(5)" class="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-[11px] font-bold text-white shadow-md flex items-center space-x-1"><span>Checkout</span><i class="fa-solid fa-arrow-right text-[10px]"></i></button>
+  </div>
+  <!-- Item Detail Modal -->
+  <div id="itemDetailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
+   <div class="glass-panel rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-emerald-500/30 shadow-2xl animate-in fade-in zoom-in duration-200">
+    <button onclick="closeItemModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button>
+    <div id="modalItemContent"></div>
+   </div>
+  </div>
+  <!-- Cart / Vault Review Modal -->
+  <div id="cartModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
+   <div class="glass-panel rounded-3xl max-w-3xl w-full p-6 sm:p-8 relative border border-emerald-500/30 shadow-2xl max-h-[90vh] flex flex-col">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+     <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+       <i class="fa-solid fa-cart-shopping"></i>
+      </div>
+      <div>
+       <h3 class="font-gaming text-xl font-bold text-white">Selected Vault Items</h3>
+       <p class="text-xs text-slate-400">Review your customized loadout before proceeding to checkout.</p>
+      </div>
+     </div>
+     <button onclick="closeCartModal()" class="text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="py-4 grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-900/60 rounded-2xl p-4 my-4 border border-slate-800">
+     <div>
+      <span class="text-xs text-slate-400 block">Selected Storage</span> <span id="cartModalHddName" class="font-gaming text-sm font-bold text-emerald-400">1TB (896GB)</span>
+     </div>
+     <div>
+      <span class="text-xs text-slate-400 block">Total Storage Used</span> <span id="cartModalStorageUsed" class="font-gaming text-sm font-bold text-cyan-400">0 GB / 896 GB</span>
+     </div>
+     <div>
+      <span class="text-xs text-slate-400 block">Total Package Price</span> <span id="cartModalTotalPrice" class="font-gaming text-sm font-bold text-emerald-400">₱2,900</span>
+     </div>
+    </div>
+    <div id="cartItemsList" class="flex-1 overflow-y-auto space-y-3 pr-2 my-2 max-h-[40vh]"></div>
+    <div class="pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+     <button onclick="clearCart()" class="w-full sm:w-auto px-4 py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-xl text-xs font-semibold border border-rose-500/30 transition-all flex items-center justify-center space-x-2"><i class="fa-solid fa-trash"></i><span>Clear Vault</span></button>
+     <div class="flex items-center space-x-3 w-full sm:w-auto">
+      <button onclick="closeCartModal()" class="flex-1 sm:flex-none px-5 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300">Close</button>
+      <button onclick="closeCartModal(); goToStep(5);" class="flex-1 sm:flex-none px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl text-xs font-bold text-white shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2"><span>Proceed to Delivery</span><i class="fa-solid fa-arrow-right"></i></button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <!-- Admin Settings Modal -->
+  <div id="adminModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
+   <div class="glass-panel rounded-3xl max-w-5xl w-full p-6 sm:p-8 relative border border-emerald-500/30 shadow-2xl max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+     <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 flex items-center justify-center text-white shadow-lg shadow-emerald-600/30">
+       <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+       <h3 class="font-gaming text-xl font-bold text-white">Admin Management CMS</h3>
+       <p class="text-xs text-slate-400">Manage storage, carriers, checkout links, QR codes &amp; store catalogs[cite: 1].</p>
+      </div>
+     </div>
+     <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <!-- Password Prompt Screen -->
+    <div id="adminPasswordScreen" class="py-12 flex flex-col items-center justify-center space-y-4">
+     <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl mb-2">
+      <i class="fa-solid fa-lock"></i>
+     </div>
+     <h4 class="font-gaming text-lg font-bold text-white">Secure Admin Access Required</h4>
+     <p class="text-xs text-slate-400 text-center max-w-md">Please enter the secure administrative password to unlock CMS capabilities.</p>
+     <div class="flex items-center space-x-2 w-full max-w-md mt-4">
+      <input type="password" id="adminPasswordInput" placeholder="Enter secure admin password..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+      <button onclick="verifyAdminPassword()" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-600/30 transition-all">Unlock</button>
+     </div>
+     <p id="adminPasswordError" class="text-rose-400 text-xs hidden font-medium">Incorrect password. Please try again.</p>
+    </div>
+    <!-- CMS Dashboard Screen -->
+    <div id="adminDashboardScreen" class="hidden flex-1 overflow-y-auto space-y-6 pt-4 pr-2">
+     <div class="flex items-center space-x-2 border-b border-slate-800 pb-3 overflow-x-auto">
+      <button onclick="switchAdminTab('hdds')" id="adminTabBtnHdds" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition-all whitespace-nowrap">Storage[cite: 1]</button>
+      <button onclick="switchAdminTab('carriers')" id="adminTabBtnCarriers" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap">Delivery Method</button>
+      <button onclick="switchAdminTab('categories')" id="adminTabBtnCategories" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap">Categories</button>
+      <button onclick="switchAdminTab('subcategories')" id="adminTabBtnSubcategories" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap">Subcategories</button>
+      <button onclick="switchAdminTab('items')" id="adminTabBtnItems" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap">Catalog Items</button>
+      <button onclick="switchAdminTab('background')" id="adminTabBtnBackground" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap">Theme &amp; Checkout[cite: 1]</button>
+      <button onclick="switchAdminTab('security')" id="adminTabBtnSecurity" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap">Admin Password</button>
+     </div>
+     <div id="adminTabHdds" class="admin-tab-content space-y-4">
+      <div class="flex items-center justify-between">
+       <h4 class="font-gaming text-base font-bold text-white">Manage Storage Options &amp; Stock[cite: 1]</h4>
+       <button onclick="openHddFormModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-md"><i class="fa-solid fa-plus"></i><span>Add Storage Option[cite: 1]</span></button>
+      </div>
+      <div id="adminHddTableList" class="space-y-3"></div>
+     </div>
+     <div id="adminTabCarriers" class="admin-tab-content space-y-4 hidden">
+      <div class="flex items-center justify-between">
+       <h4 class="font-gaming text-base font-bold text-white">Manage Delivery Methods &amp; Carriers (Step 5)</h4>
+       <button onclick="openCarrierFormModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-md"><i class="fa-solid fa-plus"></i><span>Add Carrier[cite: 1]</span></button>
+      </div>
+      <div id="adminCarrierTableList" class="space-y-3"></div>
+     </div>
+     <div id="adminTabCategories" class="admin-tab-content space-y-4 hidden">
+      <div class="flex items-center justify-between">
+       <h4 class="font-gaming text-base font-bold text-white">Manage Main Categories (Step 2)</h4>
+       <button onclick="openCategoryFormModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-md"><i class="fa-solid fa-plus"></i><span>Add Category</span></button>
+      </div>
+      <div id="adminCategoryTableList" class="space-y-3"></div>
+     </div>
+     <div id="adminTabSubcategories" class="admin-tab-content space-y-4 hidden">
+      <div class="flex items-center justify-between">
+       <h4 class="font-gaming text-base font-bold text-white">Manage Subcategories (Step 3)</h4>
+       <button onclick="openSubCategoryFormModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-md"><i class="fa-solid fa-plus"></i><span>Add Subcategory</span></button>
+      </div>
+      <div id="adminSubCategoryTableList" class="space-y-3"></div>
+     </div>
+     <div id="adminTabItems" class="admin-tab-content space-y-4 hidden">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+       <div>
+        <h4 class="font-gaming text-base font-bold text-white">Manage Catalog Items (Step 4)</h4>
+        <p class="text-xs text-slate-500 mt-1">Edit game/movie details, including Language / Subtitles.</p>
+       </div>
+       <div class="flex items-center space-x-2 w-full sm:w-auto">
+        <select id="adminItemFilterSub" onchange="renderAdminItemsList()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"></select>
+        <button onclick="openItemFormModal()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-md whitespace-nowrap"><i class="fa-solid fa-plus"></i><span>Add Item</span></button>
+       </div>
+      </div>
+      <div id="adminItemsTableList" class="space-y-3"></div>
+     </div>
+     <div id="adminTabBackground" class="admin-tab-content space-y-6 hidden">
+      <h4 class="font-gaming text-base font-bold text-white">Customize Branding, Checkout Link, QR Code &amp; Profile Picture[cite: 1]</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+       <div class="space-y-4 glass-panel p-5 rounded-2xl border border-slate-800">
+        <h5 class="text-sm font-bold text-emerald-400">Checkout Link, QR Code &amp; Profile Picture[cite: 1]</h5>
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">Destination URL / Link[cite: 1]</label> <input type="text" id="settingCheckoutLink" placeholder="https://m.me/yourpage" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">QR Code Image URL or Local File[cite: 1]</label>
+         <div class="flex items-center space-x-2">
+          <input type="text" id="settingQrCodeUrl" placeholder="https://example.com/qrcode.png" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"> <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-400 rounded-xl cursor-pointer border border-slate-700 transition-all whitespace-nowrap"> <i class="fa-solid fa-upload mr-1"></i>Upload Photo<input type="file" accept="image/*" class="hidden" onchange="handleDeviceImageUpload(event, 'settingQrCodeUrl')"> </label>
+         </div>
+        </div>
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">Profile Picture URL or Local File</label>
+         <div class="flex items-center space-x-2">
+          <input type="text" id="settingProfilePicUrl" placeholder="https://example.com/profile.jpg" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"> <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-400 rounded-xl cursor-pointer border border-slate-700 transition-all whitespace-nowrap"> <i class="fa-solid fa-upload mr-1"></i>Upload Photo<input type="file" accept="image/*" class="hidden" onchange="handleDeviceImageUpload(event, 'settingProfilePicUrl')"> </label>
+         </div>
+        </div>
+        <button onclick="saveCheckoutSettings()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md">Save Link &amp; Profile Settings</button>
+       </div>
+       <div class="space-y-4 glass-panel p-5 rounded-2xl border border-slate-800">
+        <h5 class="text-sm font-bold text-emerald-400">Brand Title &amp; Background</h5>
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">Store Title</label> <input type="text" id="settingBrandTitle" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">Background Image URL or Local File</label>
+         <div class="flex items-center space-x-2">
+          <input type="text" id="settingBgUrl" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500"> <label class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-emerald-400 rounded-xl cursor-pointer border border-slate-700 transition-all whitespace-nowrap"> <i class="fa-solid fa-upload mr-1"></i>Upload Photo<input type="file" accept="image/*" class="hidden" onchange="handleDeviceImageUpload(event, 'settingBgUrl')"> </label>
+         </div>
+        </div>
+        <button onclick="saveBrandSettings()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold shadow-md">Update Brand &amp; BG</button>
+       </div>
+      </div>
+     </div>
+     <div id="adminTabSecurity" class="admin-tab-content space-y-6 hidden">
+      <div class="glass-panel p-6 rounded-2xl border border-slate-800 max-w-2xl">
+       <h4 class="font-gaming text-base font-bold text-white">Change Admin Password</h4>
+       <p class="text-xs text-slate-400 mt-1 mb-5">Set a new password for opening Admin Settings.</p>
+       <div class="space-y-4">
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">New Password</label> <input type="password" id="newAdminPassword" autocomplete="new-password" placeholder="Enter new admin password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+         <label class="block text-xs text-slate-400 mb-1">Confirm New Password</label> <input type="password" id="confirmAdminPassword" autocomplete="new-password" placeholder="Re-enter new admin password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <button onclick="changeAdminPassword()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-md"><i class="fa-solid fa-key mr-2"></i>Save New Password</button>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <!-- Generic CMS Form Modal -->
+  <div id="cmsFormModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md hidden p-4">
+   <div class="glass-panel rounded-3xl max-w-lg w-full p-6 sm:p-8 relative border border-emerald-500/30 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+     <h4 id="cmsModalTitle" class="font-gaming text-lg font-bold text-white">Add/Edit Item</h4>
+     <button onclick="closeCmsFormModal()" class="text-slate-400 hover:text-white w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="cmsFormElement" onsubmit="handleCmsFormSubmit(event)" class="space-y-4">
+     <input type="hidden" id="cmsEditType"> <input type="hidden" id="cmsEditId">
+     <div id="cmsFormFieldsContainer" class="space-y-4"></div>
+     <div class="pt-4 border-t border-slate-800 flex items-center justify-end space-x-3">
+      <button type="button" onclick="closeCmsFormModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-semibold text-slate-300">Cancel</button>
+      <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-emerald-600/30">Save Changes</button>
+     </div>
+    </form>
+   </div>
+  </div>
+  <!-- Application JavaScript Logic -->
+  <script>
+        const SECURE_ADMIN_PASSWORD = "7$mK9#vP2$xL8*nQ4!wZ6%jH3&bR5#tY7*fD9!gC2$kJ5%mN4&hB8*pV3!xL6#zQ9$wC2%dR7&fY4*mK8!vP3#nQ6$wZ9%jH2&bR8#tY5!gC4$kJ7%mN9&hB3*pV6!xL2#zQ8$wC5%dR9";
+
+        const defaultHdds = [
+            { id: 'hdd-1', type: 'HDD', name: '128GB HDD', capacityGb: 115, price: 600, stock: 5, photo: 'https://placehold.co/400x300/131c2e/10b981?text=128GB+HDD' },
+            { id: 'hdd-2', type: 'HDD', name: '256GB HDD', capacityGb: 230, price: 900, stock: 12, photo: 'https://placehold.co/400x300/131c2e/10b981?text=256GB+HDD' },
+            { id: 'hdd-3', type: 'HDD', name: '500GB HDD', capacityGb: 447, price: 1500, stock: 0, photo: 'https://placehold.co/400x300/131c2e/10b981?text=500GB+HDD' },
+            { id: 'hdd-4', type: 'HDD', name: '1TB HDD', capacityGb: 896, price: 2900, stock: 8, photo: 'https://placehold.co/400x300/131c2e/10b981?text=1TB+HDD' },
+            { id: 'sd-1', type: 'SD Card', name: '128GB SD Card', capacityGb: 119, price: 550, stock: 15, photo: 'https://placehold.co/400x300/131c2e/10b981?text=128GB+SD+Card' },
+            { id: 'usb-1', type: 'USB Storage', name: '256GB USB Flash Drive', capacityGb: 235, price: 850, stock: 0, photo: 'https://placehold.co/400x300/131c2e/10b981?text=256GB+USB' }
+        ];
+
+        const defaultCarriers = [
+            { id: 'car-1', name: 'Standard Courier (J&T / Flash)', photo: 'https://placehold.co/300x200/131c2e/10b981?text=Standard+Courier' },
+            { id: 'car-2', name: 'Express Same-Day (Lalamove / Grab)', photo: 'https://placehold.co/300x200/131c2e/10b981?text=Express+Delivery' },
+            { id: 'car-3', name: 'Digital Delivery (Cloud Drive Link)', photo: 'https://placehold.co/300x200/131c2e/10b981?text=Digital+Download' }
+        ];
+
+        const defaultCategories = [
+            { id: 'cat-platform', name: 'Platform', desc: 'Classic & modern gaming consoles, PC & handhelds', icon: 'fa-gamepad', photo: 'https://placehold.co/400x300/131c2e/10b981?text=Platforms' },
+            { id: 'cat-media', name: 'Series & Movie', desc: 'TV shows, series boxsets & blockbuster movies', icon: 'fa-film', photo: 'https://placehold.co/400x300/131c2e/10b981?text=Series+%26+Movies' }
+        ];
+
+        const defaultSubCategories = [
+            { id: 'sub-psp', catId: 'cat-platform', name: 'PSP', icon: 'fa-hand-holding', photo: 'https://placehold.co/300x200/131c2e/10b981?text=PSP' },
+            { id: 'sub-ps2', catId: 'cat-platform', name: 'PS2', icon: 'fa-gamepad', photo: 'https://placehold.co/300x200/131c2e/10b981?text=PS2' },
+            { id: 'sub-switch', catId: 'cat-platform', name: 'Switch', icon: 'fa-dice', photo: 'https://placehold.co/300x200/131c2e/10b981?text=Switch' },
+            { id: 'sub-series', catId: 'cat-media', name: 'Series', icon: 'fa-tv', photo: 'https://placehold.co/300x200/131c2e/10b981?text=Series' },
+            { id: 'sub-movie', catId: 'cat-media', name: 'Movie', icon: 'fa-clapperboard', photo: 'https://placehold.co/300x200/131c2e/10b981?text=Movies' }
+        ];
+
+        const defaultItems = [
+            { id: 'item-1', subId: 'sub-psp', title: 'God of War: Chains of Olympus', gbSize: 1.2, genre: 'Action / Adventure', tag: 'Must Play', rate: '4.9/5', languageSub: 'English Audio / English Subtitles', info: 'Epic action masterpiece optimized for PSP.', photo: 'https://placehold.co/400x300/131c2e/10b981?text=God+of+War' },
+            { id: 'item-2', subId: 'sub-ps2', title: 'God of War II', gbSize: 4.2, genre: 'Action', tag: 'Legendary', rate: '5.0/5', languageSub: 'English Audio / English Subtitles', info: 'The definitive PS2 action adventure epic.', photo: 'https://placehold.co/400x300/131c2e/10b981?text=God+of+War+2' },
+            { id: 'item-3', subId: 'sub-switch', title: 'The Legend of Zelda: Breath of the Wild', gbSize: 14.4, genre: 'RPG', tag: 'Masterpiece', rate: '5.0/5', languageSub: 'English / Japanese Audio & Subtitles', info: 'Exploration in the open kingdom.', photo: 'https://placehold.co/400x300/131c2e/10b981?text=Zelda' },
+            { id: 'item-4', subId: 'sub-series', title: 'Breaking Bad (Complete)', gbSize: 45.0, genre: 'Drama', tag: 'Top Rated', rate: '5.0/5', languageSub: 'English Audio / English Subtitles', info: 'All 5 seasons in HD.', photo: 'https://placehold.co/400x300/131c2e/10b981?text=Breaking+Bad' }
+        ];
+
+        let appState = {
+            currentStep: 1, // Enforce Step 1 on start
+            selectedHdd: null,
+            selectedCategory: null,
+            selectedSubCategory: null,
+            selectedCarrier: defaultCarriers[0],
+            cart: [], // Empty vault by default
+            hdds: JSON.parse(localStorage.getItem('hdd_store_hdds')) || defaultHdds,
+            carriers: JSON.parse(localStorage.getItem('hdd_store_carriers')) || defaultCarriers,
+            categories: JSON.parse(localStorage.getItem('hdd_store_categories')) || defaultCategories,
+            subCategories: JSON.parse(localStorage.getItem('hdd_store_subcategories')) || defaultSubCategories,
+            items: JSON.parse(localStorage.getItem('hdd_store_items')) || defaultItems,
+            brandTitle: localStorage.getItem('hdd_store_brand') || 'HDD DRIVE STORE',
+            bgUrl: localStorage.getItem('hdd_store_bg') || '',
+            checkoutLink: localStorage.getItem('hdd_store_checkout_link') || 'https://m.me/yourpage',
+            qrCodeUrl: localStorage.getItem('hdd_store_qr') || 'https://placehold.co/200x200/131c2e/10b981?text=QR+Code',
+            profilePicUrl: localStorage.getItem('hdd_store_profile_pic') || 'https://placehold.co/100x100/131c2e/10b981?text=Admin',
+            adminPassword: localStorage.getItem('hdd_store_admin_password') || SECURE_ADMIN_PASSWORD
+        };
+
+        function saveAppData() {
+            try {
+                localStorage.setItem('hdd_store_hdds', JSON.stringify(appState.hdds));
+                localStorage.setItem('hdd_store_carriers', JSON.stringify(appState.carriers));
+                localStorage.setItem('hdd_store_categories', JSON.stringify(appState.categories));
+                localStorage.setItem('hdd_store_subcategories', JSON.stringify(appState.subCategories));
+                localStorage.setItem('hdd_store_items', JSON.stringify(appState.items));
+                localStorage.setItem('hdd_store_brand', appState.brandTitle);
+                localStorage.setItem('hdd_store_bg', appState.bgUrl);
+                localStorage.setItem('hdd_store_checkout_link', appState.checkoutLink);
+                localStorage.setItem('hdd_store_qr', appState.qrCodeUrl);
+                localStorage.setItem('hdd_store_profile_pic', appState.profilePicUrl);
+                localStorage.setItem('hdd_store_admin_password', appState.adminPassword);
+                localStorage.setItem('hdd_store_cart', JSON.stringify(appState.cart));
+            } catch (e) {
+                console.warn('LocalStorage limit reached or restricted.', e);
+            }
+        }
+
+        function handleDeviceImageUpload(event, targetInputId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(uploadEvent) {
+                document.getElementById(targetInputId).value = uploadEvent.target.result;
+                alert('Photo uploaded successfully!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.onload = function () {
+            // Force start on Step 1 with empty cart every time file opens
+            appState.currentStep = 1;
+            appState.cart = [];
+            appState.selectedHdd = null;
+            appState.selectedCategory = null;
+            appState.selectedSubCategory = null;
+
+            document.getElementById('brandTitle').innerText = appState.brandTitle;
+            if (appState.bgUrl) {
+                document.getElementById('customBgOverlay').style.background = `linear-gradient(rgba(11, 15, 25, 0.85), rgba(11, 15, 25, 0.95)), url('${appState.bgUrl}') center/cover no-repeat`;
+            }
+
+            initBackgroundCanvas();
+            renderCurrentStep();
+            updateFloatingBar();
+            saveAppData();
+        };
+
+        function initBackgroundCanvas() {
+            const canvas = document.getElementById('bgCanvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = Array.from({ length: 45 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 1,
+                color: Math.random() > 0.5 ? '#10b981' : '#06b6d4',
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: (Math.random() - 0.5) * 0.6
+            }));
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = width;
+                    if (p.x > width) p.x = 0;
+                    if (p.y < 0) p.y = height;
+                    if (p.y > height) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = p.color;
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function goToStep(stepNum) {
+            if (stepNum > 1 && !appState.selectedHdd) {
+                alert("Please select a storage device first.");
+                return;
+            }
+            if (stepNum > 2 && !appState.selectedCategory) return;
+            if (stepNum > 3 && !appState.selectedSubCategory) return;
+            appState.currentStep = stepNum;
+            renderCurrentStep();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetToStep(stepNum) {
+            appState.currentStep = stepNum;
+            renderCurrentStep();
+        }
+
+        function renderCurrentStep() {
+            document.querySelectorAll('.step-view').forEach(el => el.classList.add('hidden'));
+            
+            for (let i = 1; i <= 6; i++) {
+                const btn = document.getElementById(`breadStep${i}`);
+                if (!btn) continue;
+                if (i === appState.currentStep) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition-all whitespace-nowrap shadow-lg shadow-emerald-600/30";
+                } else if (i < appState.currentStep) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-emerald-400 hover:bg-slate-700 transition-all whitespace-nowrap";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-500 hover:text-white transition-all whitespace-nowrap";
+                }
+            }
+
+            document.getElementById('stepIndicatorBadge').innerText = appState.currentStep;
+            const titles = {
+                1: "Select Storage Device (HDD, SD Card, USB)",
+                2: "Select Content Category",
+                3: "Select Specific Subcategory",
+                4: "Explore Catalog & Add Items to Vault",
+                5: "Select Delivery Method",
+                6: "Enter Customer Details"
+            };
+            document.getElementById('stepTitleText').innerText = titles[appState.currentStep];
+
+            if (appState.currentStep === 1) {
+                document.getElementById('step1View').classList.remove('hidden');
+                renderHddGrid();
+            } else if (appState.currentStep === 2) {
+                document.getElementById('step2View').classList.remove('hidden');
+                renderCategoryGrid();
+            } else if (appState.currentStep === 3) {
+                document.getElementById('step3View').classList.remove('hidden');
+                renderSubCategoryGrid();
+            } else if (appState.currentStep === 4) {
+                document.getElementById('step4View').classList.remove('hidden');
+                renderCatalogView();
+            } else if (appState.currentStep === 5) {
+                document.getElementById('step5View').classList.remove('hidden');
+                renderCarrierGrid();
+            } else if (appState.currentStep === 6) {
+                document.getElementById('step6View').classList.remove('hidden');
+            }
+        }
+
+        function renderHddGrid() {
+            const grid = document.getElementById('hddGrid');
+            grid.innerHTML = '';
+            appState.hdds.forEach(hdd => {
+                const isSelected = appState.selectedHdd && appState.selectedHdd.id === hdd.id;
+                const isOutOfStock = (hdd.stock === 0 || hdd.stock === "0" || hdd.stock === false);
+                const card = document.createElement('div');
+                
+                if (isOutOfStock) {
+                    card.className = `glass-panel rounded-3xl p-6 border border-slate-800/60 opacity-60 relative overflow-hidden flex flex-col justify-between cursor-not-allowed bg-slate-950/40 pointer-events-none`;
+                    card.innerHTML = `
+                        <div class="absolute top-4 right-4 bg-rose-500/20 text-rose-400 border border-rose-500/30 px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
+                            <i class="fa-solid fa-ban"></i><span>0 Stock (Locked)[cite: 1]</span>
+                        </div>
+                        <div class="h-44 rounded-2xl overflow-hidden mb-4 bg-slate-900 border border-slate-800 flex items-center justify-center grayscale">
+                            <img src="${hdd.photo}" alt="${hdd.name}" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-500 font-semibold uppercase">${hdd.type || 'Storage'}</span>
+                            <h4 class="font-gaming text-xl font-bold text-slate-400 mb-1">${hdd.name}</h4>
+                            <div class="space-y-1.5 my-3 text-xs text-slate-500">
+                                <div class="flex justify-between"><span>Usable Capacity:</span><span>${hdd.capacityGb} GB</span></div>
+                                <div class="flex justify-between"><span>Price (Pesos):</span><span>₱${hdd.price.toLocaleString()}</span></div>
+                            </div>
+                        </div>
+                        <button disabled class="w-full py-3 rounded-xl font-bold text-xs tracking-wider uppercase bg-slate-800/50 text-slate-500 border border-slate-800 cursor-not-allowed">Out of Stock</button>
+                    `;
+                } else {
+                    card.className = `glass-panel rounded-3xl p-6 border transition-all duration-300 relative overflow-hidden flex flex-col justify-between gaming-glow-hover cursor-pointer ${isSelected ? 'border-emerald-500 gaming-glow bg-emerald-950/20' : 'border-slate-800'}`;
+                    card.onclick = () => selectHdd(hdd.id);
+                    card.innerHTML = `
+                        ${isSelected ? '<div class="absolute top-4 right-4 bg-emerald-500 text-slate-950 px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1"><i class="fa-solid fa-check"></i><span>Selected</span></div>' : ''}
+                        <div class="h-44 rounded-2xl overflow-hidden mb-4 bg-slate-900 border border-slate-800 flex items-center justify-center">
+                            <img src="${hdd.photo}" alt="${hdd.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/131c2e/10b981?text=Storage'">
+                        </div>
+                        <div>
+                            <span class="text-xs text-emerald-400 font-semibold uppercase">${hdd.type || 'Storage'}</span>
+                            <h4 class="font-gaming text-xl font-bold text-white mb-1">${hdd.name}</h4>
+                            <div class="space-y-1.5 my-3 text-xs text-slate-300">
+                                <div class="flex justify-between"><span class="text-slate-400">Usable Capacity:</span><span class="font-bold text-emerald-400">${hdd.capacityGb} GB</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Price (Pesos):</span><span class="font-bold text-cyan-400">₱${hdd.price.toLocaleString()}</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Stock Available:</span><span class="font-bold text-emerald-400">${hdd.stock} left</span></div>
+                            </div>
+                        </div>
+                        <button class="w-full py-3 rounded-xl font-bold text-xs tracking-wider uppercase transition-all shadow-lg ${isSelected ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-emerald-500/30' : 'bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-200 border border-slate-700'}">
+                            ${isSelected ? 'Selected (Click to Proceed)' : 'Select This Storage'} <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    `;
+                }
+                grid.appendChild(card);
+            });
+        }
+
+        function selectHdd(hddId) {
+            const hdd = appState.hdds.find(h => h.id === hddId);
+            if (!hdd || hdd.stock === 0) return;
+            appState.selectedHdd = hdd;
+            saveAppData();
+            goToStep(2);
+        }
+
+        function renderCategoryGrid() {
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = '';
+            appState.categories.forEach(cat => {
+                const isSelected = appState.selectedCategory && appState.selectedCategory.id === cat.id;
+                const card = document.createElement('div');
+                card.className = `glass-panel rounded-3xl p-8 border transition-all duration-300 cursor-pointer gaming-glow-hover flex flex-col items-center text-center ${isSelected ? 'border-emerald-500 gaming-glow bg-emerald-950/20' : 'border-slate-800'}`;
+                card.onclick = () => selectCategory(cat.id);
+                card.innerHTML = `
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-3xl mb-6 shadow-lg shadow-emerald-500/40">
+                        <i class="fa-solid ${cat.icon || 'fa-folder'}"></i>
+                    </div>
+                    <h4 class="font-gaming text-2xl font-bold text-white mb-2">${cat.name}</h4>
+                    <p class="text-slate-400 text-xs">${cat.desc}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectCategory(catId) {
+            appState.selectedCategory = appState.categories.find(c => c.id === catId);
+            saveAppData();
+            goToStep(3);
+        }
+
+        function renderSubCategoryGrid() {
+            const grid = document.getElementById('subCategoryGrid');
+            grid.innerHTML = '';
+            const subs = appState.subCategories.filter(s => s.catId === appState.selectedCategory.id);
+            document.getElementById('step3Heading').innerText = `Select Subcategory (${appState.selectedCategory.name})`;
+
+            subs.forEach(sub => {
+                const card = document.createElement('div');
+                card.className = `glass-panel rounded-3xl p-6 border border-slate-800 transition-all duration-300 cursor-pointer gaming-glow-hover flex flex-col justify-between`;
+                card.onclick = () => selectSubCategory(sub.id);
+                card.innerHTML = `
+                    <div class="h-36 rounded-2xl overflow-hidden mb-4 bg-slate-900 border border-slate-800 flex items-center justify-center">
+                        <img src="${sub.photo}" alt="${sub.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/300x200/131c2e/10b981?text=Subcategory'">
+                    </div>
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 text-lg">
+                            <i class="fa-solid ${sub.icon || 'fa-gamepad'}"></i>
+                        </div>
+                        <h4 class="font-gaming text-lg font-bold text-white mb-1">${sub.name}</h4>
+                        <p class="text-xs text-slate-400">Browse and select titles for ${sub.name}</p>
+                    </div>
+                    <button class="mt-4 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-200 font-bold text-xs border border-slate-700 transition-all flex items-center justify-center space-x-2">
+                        <span>Open Catalog</span><i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectSubCategory(subId) {
+            appState.selectedSubCategory = appState.subCategories.find(s => s.id === subId);
+            saveAppData();
+            goToStep(4);
+        }
+
+        function renderCatalogView() {
+            if (!appState.selectedSubCategory) {
+                const subs = appState.subCategories.filter(s => s.catId === appState.selectedCategory?.id);
+                if (subs.length) appState.selectedSubCategory = subs[0];
+                else return;
+            }
+
+            document.getElementById('currentCategoryLabel').innerText = `${appState.selectedCategory.name} / ${appState.selectedSubCategory.name}`;
+            document.getElementById('currentSubTitle').innerText = `${appState.selectedSubCategory.name} Vault Catalog`;
+            document.getElementById('currentSubIcon').className = `fa-solid ${appState.selectedSubCategory.icon || 'fa-gamepad'}`;
+
+            if (appState.selectedHdd) {
+                document.getElementById('activeHddSummary').innerText = `${appState.selectedHdd.name} (${appState.selectedHdd.capacityGb}GB) - ₱${appState.selectedHdd.price.toLocaleString()}`;
+            }
+
+            const quickBar = document.getElementById('quickSubSwitchBar');
+            quickBar.innerHTML = '';
+            const subs = appState.subCategories.filter(s => s.catId === appState.selectedCategory.id);
+            subs.forEach(s => {
+                const isCurrent = s.id === appState.selectedSubCategory.id;
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    appState.selectedSubCategory = s;
+                    renderCatalogView();
+                };
+                btn.className = `px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${isCurrent ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`;
+                btn.innerHTML = `<i class="fa-solid ${s.icon || 'fa-gamepad'} mr-1.5"></i>${s.name}`;
+                quickBar.appendChild(btn);
+            });
+
+            renderCatalogItemsGrid();
+        }
+
+        function renderCatalogItemsGrid() {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = '';
+            const searchTerm = (document.getElementById('catalogSearchInput').value || '').toLowerCase();
+
+            const items = appState.items.filter(item => {
+                if (item.subId !== appState.selectedSubCategory.id) return false;
+                if (!searchTerm) return true;
+                return (item.title.toLowerCase().includes(searchTerm) || 
+                        (item.genre && item.genre.toLowerCase().includes(searchTerm)) || 
+                        (item.tag && item.tag.toLowerCase().includes(searchTerm)));
+            });
+
+            items.forEach(item => {
+                const isInCart = appState.cart.some(ci => ci.id === item.id);
+                const card = document.createElement('div');
+                card.className = `glass-panel rounded-3xl p-4 border transition-all duration-300 flex flex-col justify-between relative gaming-glow-hover ${isInCart ? 'border-emerald-500 bg-emerald-950/10' : 'border-slate-800'}`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="h-40 rounded-2xl overflow-hidden mb-3 bg-slate-900 border border-slate-800 relative cursor-pointer" onclick="openItemModal('${item.id}')">
+                            <img src="${item.photo}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x300/131c2e/10b981?text=Game'">
+                            <span class="absolute top-2.5 left-2.5 bg-slate-950/80 backdrop-blur-md text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-slate-700">${item.gbSize} GB</span>
+                        </div>
+                        <h5 class="font-gaming text-sm font-bold text-white mb-1 line-clamp-1 cursor-pointer hover:text-emerald-400 transition-colors" onclick="openItemModal('${item.id}')">${item.title}</h5>
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
+                            <span>${item.genre || 'General'}</span>
+                            <span class="text-amber-400 font-bold"><i class="fa-solid fa-star mr-1"></i>${item.rate || '4.8'}</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleCartItem('${item.id}')" class="w-full py-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all shadow-md flex items-center justify-center space-x-1.5 ${isInCart ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'}">
+                        <i class="fa-solid ${isInCart ? 'fa-minus' : 'fa-plus'}"></i>
+                        <span>${isInCart ? 'Remove from Vault' : 'Add to Vault'}</span>
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCatalogItems() { renderCatalogItemsGrid(); }
+
+        function toggleCartItem(itemId) {
+            const item = appState.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const index = appState.cart.findIndex(ci => ci.id === itemId);
+            if (index > -1) {
+                appState.cart.splice(index, 1);
+            } else {
+                if (appState.selectedHdd) {
+                    const currentUsedGb = appState.cart.reduce((sum, i) => sum + i.gbSize, 0);
+                    if (currentUsedGb + item.gbSize > appState.selectedHdd.capacityGb) {
+                        alert(`Storage capacity limit reached! (${appState.selectedHdd.capacityGb} GB max).`);
+                        return;
+                    }
+                }
+                appState.cart.push(item);
+            }
+            saveAppData();
+            renderCatalogItemsGrid();
+            updateFloatingBar();
+        }
+
+        function selectAllCurrentCatalog() {
+            const searchTerm = (document.getElementById('catalogSearchInput').value || '').toLowerCase();
+            const items = appState.items.filter(item => {
+                if (item.subId !== appState.selectedSubCategory.id) return false;
+                if (!searchTerm) return true;
+                return (item.title.toLowerCase().includes(searchTerm));
+            });
+
+            let addedCount = 0;
+            items.forEach(item => {
+                if (!appState.cart.some(ci => ci.id === item.id)) {
+                    if (appState.selectedHdd) {
+                        const currentUsedGb = appState.cart.reduce((sum, i) => sum + i.gbSize, 0);
+                        if (currentUsedGb + item.gbSize <= appState.selectedHdd.capacityGb) {
+                            appState.cart.push(item);
+                            addedCount++;
+                        }
+                    } else {
+                        appState.cart.push(item);
+                        addedCount++;
+                    }
+                }
+            });
+            saveAppData();
+            renderCatalogItemsGrid();
+            updateFloatingBar();
+            alert(`Added ${addedCount} items to your Vault!`);
+        }
+
+        function updateFloatingBar() {
+            const count = appState.cart.length;
+            document.getElementById('floatingItemCountBadge').innerText = count;
+            document.getElementById('headerCartCount').innerText = count;
+
+            const capacity = appState.selectedHdd ? appState.selectedHdd.capacityGb : 896;
+            const usedGb = appState.cart.reduce((sum, i) => sum + i.gbSize, 0);
+            const percent = capacity > 0 ? Math.min(100, Math.round((usedGb / capacity) * 100)) : 0;
+
+            document.getElementById('storageUsedText').innerText = `${usedGb.toFixed(1)} GB / ${capacity} GB`;
+            document.getElementById('storagePercentText').innerText = `${percent}% Used`;
+        }
+
+        function openItemModal(itemId) {
+            const item = appState.items.find(i => i.id === itemId);
+            if (!item) return;
+            const isInCart = appState.cart.some(ci => ci.id === item.id);
+
+            document.getElementById('modalItemContent').innerHTML = `
+                <div class="space-y-4">
+                    <div class="h-56 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 relative">
+                        <img src="${item.photo}" alt="${item.title}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-emerald-400 px-3 py-1 rounded-xl text-xs font-bold border border-slate-700">${item.gbSize} GB</span>
+                    </div>
+                    <div>
+                        <h3 class="font-gaming text-xl font-bold text-white mb-2">${item.title}</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-4">${item.info || 'High quality game title for your storage vault.'}</p>
+                    </div>
+                    <button onclick="toggleCartItem('${item.id}'); closeItemModal();" class="w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg flex items-center justify-center space-x-2 ${isInCart ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30'}">
+                        <span>${isInCart ? 'Remove from Vault' : 'Add to Vault'}</span>
+                    </button>
+                </div>
+            `;
+            document.getElementById('itemDetailModal').classList.remove('hidden');
+        }
+
+        function closeItemModal() { document.getElementById('itemDetailModal').classList.add('hidden'); }
+
+        function openCartModal() {
+            const capacity = appState.selectedHdd ? appState.selectedHdd.capacityGb : 896;
+            const hddPrice = appState.selectedHdd ? appState.selectedHdd.price : 2900;
+            const usedGb = appState.cart.reduce((sum, i) => sum + i.gbSize, 0);
+
+            document.getElementById('cartModalHddName').innerText = appState.selectedHdd ? `${appState.selectedHdd.name} (${capacity}GB)` : '1TB (896GB)';
+            document.getElementById('cartModalStorageUsed').innerText = `${usedGb.toFixed(1)} GB / ${capacity} GB`;
+            document.getElementById('cartModalTotalPrice').innerText = `₱${hddPrice.toLocaleString()}`;
+
+            const list = document.getElementById('cartItemsList');
+            list.innerHTML = '';
+
+            if (appState.cart.length === 0) {
+                list.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">Your vault is currently empty.</div>`;
+            } else {
+                appState.cart.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "bg-slate-900/80 border border-slate-800 rounded-2xl p-3 flex items-center justify-between gap-3";
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <img src="${item.photo}" class="w-12 h-12 rounded-xl object-cover bg-slate-800" onerror="this.src='https://placehold.co/100x100/131c2e/10b981?text=Item'">
+                            <div>
+                                <h5 class="font-gaming text-xs font-bold text-white line-clamp-1">${item.title}</h5>
+                                <span class="text-[10px] text-emerald-400 font-semibold">${item.gbSize} GB</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleCartItem('${item.id}'); openCartModal();" class="text-rose-400 hover:text-rose-300 p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `;
+                    list.appendChild(row);
+                });
+            }
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCartModal() { document.getElementById('cartModal').classList.add('hidden'); }
+
+        function clearCart() {
+            if (confirm('Are you sure you want to clear your vault?')) {
+                appState.cart = [];
+                saveAppData();
+                openCartModal();
+                updateFloatingBar();
+                if (appState.currentStep === 4) renderCatalogItemsGrid();
+            }
+        }
+
+        function renderCarrierGrid() {
+            const grid = document.getElementById('carrierSelectionGrid');
+            grid.innerHTML = '';
+            appState.carriers.forEach(car => {
+                const isSelected = appState.selectedCarrier && appState.selectedCarrier.id === car.id;
+                const card = document.createElement('div');
+                card.className = `glass-panel rounded-2xl p-4 border transition-all duration-300 cursor-pointer gaming-glow-hover flex flex-col justify-between ${isSelected ? 'border-emerald-500 gaming-glow bg-emerald-950/20' : 'border-slate-800'}`;
+                card.onclick = () => {
+                    appState.selectedCarrier = car;
+                    saveAppData();
+                    renderCarrierGrid();
+                };
+                card.innerHTML = `
+                    <div class="h-28 rounded-xl overflow-hidden mb-3 bg-slate-900 border border-slate-800 flex items-center justify-center">
+                        <img src="${car.photo}" alt="${car.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <h5 class="font-gaming text-xs font-bold text-white">${car.name}</h5>
+                        <div class="w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${isSelected ? 'bg-emerald-500 border-emerald-500 text-slate-950 font-bold' : 'border-slate-700 text-transparent'}"><i class="fa-solid fa-check"></i></div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function copyOrderDetailsManual() {
+            const name = document.getElementById('checkoutFullName').value;
+            const contact = document.getElementById('checkoutContactNumber').value;
+            const address = document.getElementById('checkoutCompleteAddress').value;
+            const hdd = appState.selectedHdd ? appState.selectedHdd.name : 'None';
+            const carrier = appState.selectedCarrier ? appState.selectedCarrier.name : 'None';
+            
+            let summary = `--- ORDER SUMMARY ---\nName: ${name}\nContact: ${contact}\nAddress: ${address}\nStorage: ${hdd}\nCarrier: ${carrier}\nItems (${appState.cart.length}):\n`;
+            appState.cart.forEach((i, idx) => { summary += `${idx+1}. ${i.title} (${i.gbSize}GB)\n`; });
+            
+            navigator.clipboard.writeText(summary);
+            alert('Order summary copied to clipboard!');
+        }
+
+        function submitOrderAndRedirect() {
+            copyOrderDetailsManual();
+            window.open(appState.checkoutLink, '_blank');
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminPasswordScreen').classList.remove('hidden');
+            document.getElementById('adminDashboardScreen').classList.add('hidden');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordError').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+
+        function verifyAdminPassword() {
+            const input = document.getElementById('adminPasswordInput').value;
+            if (input === appState.adminPassword) {
+                document.getElementById('adminPasswordScreen').classList.add('hidden');
+                document.getElementById('adminDashboardScreen').classList.remove('hidden');
+                switchAdminTab('hdds');
+            } else {
+                document.getElementById('adminPasswordError').classList.remove('hidden');
+            }
+        }
+
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="adminTabBtn"]').forEach(btn => {
+                btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all whitespace-nowrap";
+            });
+
+            document.getElementById(`adminTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.remove('hidden');
+            document.getElementById(`adminTabBtn${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).className = "px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white transition-all whitespace-nowrap";
+
+            if (tabName === 'hdds') renderAdminHddsList();
+            else if (tabName === 'carriers') renderAdminCarriersList();
+            else if (tabName === 'categories') renderAdminCategoriesList();
+            else if (tabName === 'subcategories') renderAdminSubCategoriesList();
+            else if (tabName === 'items') {
+                populateAdminSubFilter();
+                renderAdminItemsList();
+            } else if (tabName === 'background') {
+                document.getElementById('settingBrandTitle').value = appState.brandTitle;
+                document.getElementById('settingBgUrl').value = appState.bgUrl;
+                document.getElementById('settingCheckoutLink').value = appState.checkoutLink;
+                document.getElementById('settingQrCodeUrl').value = appState.qrCodeUrl;
+                document.getElementById('settingProfilePicUrl').value = appState.profilePicUrl;
+            }
+        }
+
+        function renderAdminHddsList() {
+            const container = document.getElementById('adminHddTableList');
+            container.innerHTML = '';
+            appState.hdds.forEach(hdd => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${hdd.photo}" class="w-12 h-12 rounded-xl object-cover bg-slate-800">
+                        <div>
+                            <h5 class="font-gaming text-sm font-bold text-white">${hdd.name}</h5>
+                            <span class="text-xs text-emerald-400 font-semibold">${hdd.capacityGb} GB • ₱${hdd.price.toLocaleString()} • Stock: ${hdd.stock}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openHddFormModal('${hdd.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-200">Edit</button>
+                        <button onclick="deleteHdd('${hdd.id}')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-xs font-semibold rounded-xl text-rose-400">Delete</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function openHddFormModal(hddId = null) {
+            const isEdit = hddId !== null;
+            const hdd = isEdit ? appState.hdds.find(h => h.id === hddId) : { name: '', type: 'HDD', capacityGb: 500, price: 1500, stock: 10, photo: '' };
+            
+            document.getElementById('cmsModalTitle').innerText = isEdit ? 'Edit Storage Option' : 'Add Storage Option';
+            document.getElementById('cmsEditType').value = 'hdd';
+            document.getElementById('cmsEditId').value = hddId || '';
+
+            document.getElementById('cmsFormFieldsContainer').innerHTML = `
+                <div><label class="block text-xs text-slate-400 mb-1">Name</label><input type="text" id="cmsHddName" value="${hdd.name}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Type</label><input type="text" id="cmsHddType" value="${hdd.type || 'HDD'}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Capacity (GB)</label><input type="number" id="cmsHddCap" value="${hdd.capacityGb}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Price (₱)</label><input type="number" id="cmsHddPrice" value="${hdd.price}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Stock (0 = locked out of stock)</label><input type="number" id="cmsHddStock" value="${hdd.stock}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Photo URL</label><input type="text" id="cmsHddPhoto" value="${hdd.photo}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+            `;
+            document.getElementById('cmsFormModal').classList.remove('hidden');
+        }
+
+        function deleteHdd(hddId) {
+            if (confirm('Delete this storage option?')) {
+                appState.hdds = appState.hdds.filter(h => h.id !== hddId);
+                saveAppData();
+                renderAdminHddsList();
+            }
+        }
+
+        function renderAdminCarriersList() {
+            const container = document.getElementById('adminCarrierTableList');
+            container.innerHTML = '';
+            appState.carriers.forEach(car => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${car.photo}" class="w-12 h-12 rounded-xl object-cover bg-slate-800">
+                        <h5 class="font-gaming text-sm font-bold text-white">${car.name}</h5>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openCarrierFormModal('${car.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-200">Edit</button>
+                        <button onclick="deleteCarrier('${car.id}')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-xs font-semibold rounded-xl text-rose-400">Delete</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function openCarrierFormModal(carId = null) {
+            const isEdit = carId !== null;
+            const car = isEdit ? appState.carriers.find(c => c.id === carId) : { name: '', photo: '' };
+            document.getElementById('cmsEditType').value = 'carrier';
+            document.getElementById('cmsEditId').value = carId || '';
+
+            document.getElementById('cmsFormFieldsContainer').innerHTML = `
+                <div><label class="block text-xs text-slate-400 mb-1">Carrier Name</label><input type="text" id="cmsCarName" value="${car.name}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Photo URL</label><input type="text" id="cmsCarPhoto" value="${car.photo}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+            `;
+            document.getElementById('cmsFormModal').classList.remove('hidden');
+        }
+
+        function deleteCarrier(carId) {
+            if (confirm('Delete carrier?')) {
+                appState.carriers = appState.carriers.filter(c => c.id !== carId);
+                saveAppData();
+                renderAdminCarriersList();
+            }
+        }
+
+        function renderAdminCategoriesList() {
+            const container = document.getElementById('adminCategoryTableList');
+            container.innerHTML = '';
+            appState.categories.forEach(cat => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid ${cat.icon}"></i></div>
+                        <div>
+                            <h5 class="font-gaming text-sm font-bold text-white">${cat.name}</h5>
+                            <span class="text-xs text-slate-400">${cat.desc}</span>
+                        </div>
+                    </div>
+                    <button onclick="openCategoryFormModal('${cat.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-200">Edit</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function openCategoryFormModal(catId) {
+            const cat = appState.categories.find(c => c.id === catId);
+            document.getElementById('cmsEditType').value = 'category';
+            document.getElementById('cmsEditId').value = catId;
+            document.getElementById('cmsFormFieldsContainer').innerHTML = `
+                <div><label class="block text-xs text-slate-400 mb-1">Name</label><input type="text" id="cmsCatName" value="${cat.name}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Description</label><input type="text" id="cmsCatDesc" value="${cat.desc}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">FontAwesome Icon</label><input type="text" id="cmsCatIcon" value="${cat.icon}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+            `;
+            document.getElementById('cmsFormModal').classList.remove('hidden');
+        }
+
+        function renderAdminSubCategoriesList() {
+            const container = document.getElementById('adminSubCategoryTableList');
+            container.innerHTML = '';
+            appState.subCategories.forEach(sub => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${sub.photo}" class="w-12 h-12 rounded-xl object-cover bg-slate-800">
+                        <h5 class="font-gaming text-sm font-bold text-white">${sub.name}</h5>
+                    </div>
+                    <button onclick="openSubCategoryFormModal('${sub.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-200">Edit</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function openSubCategoryFormModal(subId = null) {
+            const isEdit = subId !== null;
+            const sub = isEdit ? appState.subCategories.find(s => s.id === subId) : { catId: 'cat-platform', name: '', icon: 'fa-gamepad', photo: '' };
+            document.getElementById('cmsEditType').value = 'subcategory';
+            document.getElementById('cmsEditId').value = subId || '';
+
+            document.getElementById('cmsFormFieldsContainer').innerHTML = `
+                <div><label class="block text-xs text-slate-400 mb-1">Name</label><input type="text" id="cmsSubName" value="${sub.name}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Photo URL</label><input type="text" id="cmsSubPhoto" value="${sub.photo}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+            `;
+            document.getElementById('cmsFormModal').classList.remove('hidden');
+        }
+
+        function populateAdminSubFilter() {
+            const sel = document.getElementById('adminItemFilterSub');
+            sel.innerHTML = '';
+            appState.subCategories.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.innerText = sub.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        function renderAdminItemsList() {
+            const subId = document.getElementById('adminItemFilterSub').value;
+            const container = document.getElementById('adminItemsTableList');
+            container.innerHTML = '';
+            const items = appState.items.filter(i => i.subId === subId);
+
+            items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-4";
+                row.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${item.photo}" class="w-12 h-12 rounded-xl object-cover bg-slate-800">
+                        <div>
+                            <h5 class="font-gaming text-sm font-bold text-white">${item.title}</h5>
+                            <span class="text-xs text-emerald-400">${item.gbSize} GB • ${item.genre || 'Game'}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="openItemFormModal('${item.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-200">Edit</button>
+                        <button onclick="deleteItem('${item.id}')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-xs font-semibold rounded-xl text-rose-400">Delete</button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function openItemFormModal(itemId = null) {
+            const isEdit = itemId !== null;
+            const item = isEdit ? appState.items.find(i => i.id === itemId) : { subId: document.getElementById('adminItemFilterSub').value, title: '', gbSize: 2.0, genre: 'Action', tag: 'New', rate: '4.9/5', info: '', photo: '' };
+            document.getElementById('cmsEditType').value = 'item';
+            document.getElementById('cmsEditId').value = itemId || '';
+
+            document.getElementById('cmsFormFieldsContainer').innerHTML = `
+                <div><label class="block text-xs text-slate-400 mb-1">Title</label><input type="text" id="cmsItemTitle" value="${item.title}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Size (GB)</label><input type="number" step="0.1" id="cmsItemGb" value="${item.gbSize}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Genre</label><input type="text" id="cmsItemGenre" value="${item.genre}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+                <div><label class="block text-xs text-slate-400 mb-1">Photo URL</label><input type="text" id="cmsItemPhoto" value="${item.photo}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white"></div>
+            `;
+            document.getElementById('cmsFormModal').classList.remove('hidden');
+        }
+
+        function deleteItem(itemId) {
+            if (confirm('Delete item?')) {
+                appState.items = appState.items.filter(i => i.id !== itemId);
+                saveAppData();
+                renderAdminItemsList();
+            }
+        }
+
+        function handleCmsFormSubmit(event) {
+            event.preventDefault();
+            const type = document.getElementById('cmsEditType').value;
+            const id = document.getElementById('cmsEditId').value;
+
+            if (type === 'hdd') {
+                const data = {
+                    id: id || 'hdd-' + Date.now(),
+                    name: document.getElementById('cmsHddName').value,
+                    type: document.getElementById('cmsHddType').value,
+                    capacityGb: parseFloat(document.getElementById('cmsHddCap').value),
+                    price: parseFloat(document.getElementById('cmsHddPrice').value),
+                    stock: parseInt(document.getElementById('cmsHddStock').value),
+                    photo: document.getElementById('cmsHddPhoto').value
+                };
+                if (id) {
+                    const idx = appState.hdds.findIndex(h => h.id === id);
+                    appState.hdds[idx] = data;
+                } else {
+                    appState.hdds.push(data);
+                }
+                saveAppData();
+                renderAdminHddsList();
+            } else if (type === 'carrier') {
+                const data = {
+                    id: id || 'car-' + Date.now(),
+                    name: document.getElementById('cmsCarName').value,
+                    photo: document.getElementById('cmsCarPhoto').value
+                };
+                if (id) {
+                    const idx = appState.carriers.findIndex(c => c.id === id);
+                    appState.carriers[idx] = data;
+                } else {
+                    appState.carriers.push(data);
+                }
+                saveAppData();
+                renderAdminCarriersList();
+            } else if (type === 'category') {
+                const idx = appState.categories.findIndex(c => c.id === id);
+                if (idx > -1) {
+                    appState.categories[idx].name = document.getElementById('cmsCatName').value;
+                    appState.categories[idx].desc = document.getElementById('cmsCatDesc').value;
+                    appState.categories[idx].icon = document.getElementById('cmsCatIcon').value;
+                    saveAppData();
+                    renderAdminCategoriesList();
+                }
+            } else if (type === 'subcategory') {
+                const data = {
+                    id: id || 'sub-' + Date.now(),
+                    catId: 'cat-platform',
+                    name: document.getElementById('cmsSubName').value,
+                    icon: 'fa-gamepad',
+                    photo: document.getElementById('cmsSubPhoto').value
+                };
+                if (id) {
+                    const idx = appState.subCategories.findIndex(s => s.id === id);
+                    appState.subCategories[idx] = data;
+                } else {
+                    appState.subCategories.push(data);
+                }
+                saveAppData();
+                renderAdminSubCategoriesList();
+            } else if (type === 'item') {
+                const data = {
+                    id: id || 'item-' + Date.now(),
+                    subId: document.getElementById('adminItemFilterSub').value,
+                    title: document.getElementById('cmsItemTitle').value,
+                    gbSize: parseFloat(document.getElementById('cmsItemGb').value),
+                    genre: document.getElementById('cmsItemGenre').value,
+                    photo: document.getElementById('cmsItemPhoto').value,
+                    rate: '4.9/5'
+                };
+                if (id) {
+                    const idx = appState.items.findIndex(i => i.id === id);
+                    appState.items[idx] = data;
+                } else {
+                    appState.items.push(data);
+                }
+                saveAppData();
+                renderAdminItemsList();
+            }
+            closeCmsFormModal();
+        }
+
+        function closeCmsFormModal() { document.getElementById('cmsFormModal').classList.add('hidden'); }
+
+        function saveCheckoutSettings() {
+            appState.checkoutLink = document.getElementById('settingCheckoutLink').value;
+            appState.qrCodeUrl = document.getElementById('settingQrCodeUrl').value;
+            appState.profilePicUrl = document.getElementById('settingProfilePicUrl').value;
+            saveAppData();
+            alert('Checkout settings saved successfully!');
+        }
+
+        function saveBrandSettings() {
+            appState.brandTitle = document.getElementById('settingBrandTitle').value;
+            appState.bgUrl = document.getElementById('settingBgUrl').value;
+            document.getElementById('brandTitle').innerText = appState.brandTitle;
+            if (appState.bgUrl) {
+                document.getElementById('customBgOverlay').style.background = `linear-gradient(rgba(11, 15, 25, 0.85), rgba(11, 15, 25, 0.95)), url('${appState.bgUrl}') center/cover no-repeat`;
+            }
+            saveAppData();
+            alert('Branding updated successfully!');
+        }
+
+        function changeAdminPassword() {
+            const p1 = document.getElementById('newAdminPassword').value;
+            const p2 = document.getElementById('confirmAdminPassword').value;
+            if (!p1 || p1 !== p2) {
+                alert('Passwords do not match or are empty.');
+                return;
+            }
+            appState.adminPassword = p1;
+            saveAppData();
+            alert('Admin password changed successfully!');
+            document.getElementById('newAdminPassword').value = '';
+            document.getElementById('confirmAdminPassword').value = '';
+        }
+    </script>
+ </body>
+</html>
